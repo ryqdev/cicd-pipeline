@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,14 +23,41 @@ func main() {
 		})
 	})
 	r.POST("/webhook", func(c *gin.Context) {
-		// get and print header and body
-		header := c.Request.Header
-		body := c.Request.Body
-		golog.Info("header: ", header)
-		golog.Info("body: ", body)
+		// Read Headers
+		headers := make(map[string]string)
+		for key, values := range c.Request.Header {
+			headers[key] = values[0] // assuming single value headers
+		}
+
+		// Log headers
+		golog.Info("Headers: ", headers)
+
+		// Read Body
+		bodyBytes, err := io.ReadAll(c.Request.Body)
+		if err != nil {
+			golog.Error("Error reading body: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot read request body"})
+			return
+		}
+
+		// Log raw body
+		golog.Info("Raw Body: ", string(bodyBytes))
+
+		// Unmarshal Body (assuming JSON for this example)
+		var bodyData map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &bodyData); err != nil {
+			golog.Error("Error unmarshalling body: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot parse JSON body"})
+			return
+		}
+
+		// Log unmarshalled body
+		golog.Info("Parsed Body: ", bodyData)
+
+		// Respond with JSON including headers and parsed body
 		c.JSON(http.StatusOK, gin.H{
-			"header": header,
-			"body":   body,
+			"header": headers,
+			"body":   bodyData,
 		})
 	})
 	r.Run()
