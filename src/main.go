@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
 
@@ -43,21 +42,10 @@ func main() {
 		// Log raw body
 		golog.Info("Raw Body: ", string(bodyBytes))
 
-		// Unmarshal Body (assuming JSON for this example)
-		var bodyData map[string]interface{}
-		if err := json.Unmarshal(bodyBytes, &bodyData); err != nil {
-			golog.Error("Error unmarshalling body: ", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot parse JSON body"})
-			return
-		}
-
-		// Log unmarshalled body
-		golog.Info("Parsed Body: ", bodyData)
-
 		// Respond with JSON including headers and parsed body
 		c.JSON(http.StatusOK, gin.H{
 			"header": headers,
-			"body":   bodyData,
+			"body":   bodyBytes,
 		})
 	})
 	r.Run()
