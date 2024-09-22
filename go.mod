@@ -1,4 +1,4 @@
-module github.com/ryqdev/golang_utils
+module github.com/ryqdev/cicd-pipeline
 
 go 1.22.5
 
