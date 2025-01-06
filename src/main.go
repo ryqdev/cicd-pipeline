@@ -38,11 +38,7 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot read request body"})
 			return
 		}
-
-		// Log raw body
 		golog.Info("Raw Body: ", string(bodyBytes))
-
-		// Respond with JSON including headers and parsed body
 		c.JSON(http.StatusOK, gin.H{
 			"header": headers,
 			"body":   bodyBytes,
